@@ -1,66 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Alphabet Game</title>
-  </head>
-  <body>
-    <h1>Alphabet Game</h1>
-    <p id="letter"></p>
-    <button id="play">Play Sound</button>
-    <button id="start">Start Voice Recognition</button>
-    <p id="result"></p>
+<html>
+<head>
+	<title>アルファベットかくにん</title>
+	<meta charset="UTF-8">
+	<style>
+		body {
+			text-align: center;
+		}
 
-    <script>
-      let currentLetter = "";
-      const letters = "abcdefghijklmnopqrstuvwxyz";
+		h1 {
+			margin-top: 50px;
+		}
 
-      function playSound() {
-        const audio = new Audio(`./audio/${currentLetter}.mp3`);
-        audio.play();
-      }
+		#letter {
+			font-size: 200px;
+			margin-top: 100px;
+		}
 
-      function generateLetter() {
-        const randomIndex = Math.floor(Math.random() * letters.length);
-        const letter = letters[randomIndex];
+		button {
+			margin-top: 50px;
+			padding: 10px 20px;
+			font-size: 20px;
+			border-radius: 5px;
+			border: none;
+			color: #fff;
+			cursor: pointer;
+			outline: none;
+		}
+
+		#answer {
+			background-color: #f00;
+		}
+
+		#next {
+			background-color: #00f;
+		}
+	</style>
+</head>
+<body>
+	<h1>アルファベットかくにん</h1>
+	<div id="letter"></div>
+    <div>
+        <button id="answer">こたえ</button>
+    </div>
+    <div>
+        <button id="next">つぎへ</button>
+    </div>
+	<script src="script.js"></script>
+</body>
+<script>
+
+    const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+
+    // ページが読み込まれた時に実行される処理
+    window.onload = function() {
+        // 背景色を白に設定
+        document.body.style.backgroundColor = "#fff";
+        // ランダムなアルファベットを表示
+        displayRandomLetter();
+    }
+
+    // 「こたえ」ボタンがクリックされた時に実行される処理
+    document.getElementById("answer").onclick = function() {
+        // 現在表示されているアルファベットを取得
+        const letter = document.getElementById("letter").textContent;
+
+        var ssu = new SpeechSynthesisUtterance();
+        ssu.text = letter;
+        ssu.lang = 'en-US';
+
+        
+        var voices = speechSynthesis.getVoices();
+        var voice = voices.find(function(_voice){
+            return _voice.lang === 'en-US';
+        });
+
+        if(voice){
+            ssu.voice = voice;
+        }
+
+        speechSynthesis.speak(ssu);
+    }
+    
+    document.getElementById("next").onclick = function() {
+        displayRandomLetter();
+    }
+    
+    function displayRandomLetter() {
+        const randomIndex = Math.floor(Math.random() * alphabet.length);
+        const letter = alphabet[randomIndex];
         const randomCase = Math.random() < 0.5 ? "lower" : "upper";
         currentLetter = randomCase === "lower" ? letter : letter.toUpperCase();
         document.getElementById("letter").textContent = currentLetter;
       }
 
-      function checkAnswer(answer) {
-        if (answer === currentLetter) {
-          document.getElementById("result").textContent = "Correct!";
-          generateLetter();
-          playSound();
-        } else {
-          document.getElementById("result").textContent = "Incorrect!";
-        }
-      }
-
-      document.getElementById("play").addEventListener("click", playSound);
-
-      document.getElementById("start").addEventListener("click", () => {
-        window.SpeechRecognition =
-          window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new window.SpeechRecognition();
-        recognition.lang = "en-US";
-
-        recognition.addEventListener("result", (event) => {
-          const transcript = event.results[0][0].transcript.trim().toLowerCase();
-          document.getElementById("result").textContent = transcript;
-          checkAnswer(transcript);
-        });
-
-        recognition.addEventListener("end", recognition.start);
-
-        recognition.start();
-      });
-
-      generateLetter();
-      playSound();
-    </script>
-  </body>
+</script>
 </html>

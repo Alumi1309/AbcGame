@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Alphabet Pronunciation Game with Voice Recognition</title>
+  </head>
+  <body>
+    <h1>Alphabet Pronunciation Game with Voice Recognition</h1>
+    <p>Click the button to hear the pronunciation of a random alphabet:</p>
+    <p id="alphabet"></p>
+    <button onclick="pronounce()">Pronounce</button>
+    <p>Click the button and speak the alphabet to move to the next one:</p>
+    <button onclick="startRecognition()">Start Voice Recognition</button>
+
+    <script>
+      let recognition;
+      let correctAlphabet;
+
+      function getRandomAlphabet() {
+        const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const lowerCase = "abcdefghijklmnopqrstuvwxyz";
+        const allLetters = upperCase + lowerCase;
+        const randomIndex = Math.floor(Math.random() * allLetters.length);
+        return allLetters.charAt(randomIndex);
+      }
+
+      function pronounce() {
+        const alphabet = document.getElementById("alphabet").textContent;
+        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${alphabet}&tl=en&client=tw-ob`;
+        const audio = new Audio(audioUrl);
+        audio.play();
+      }
+
+      function startRecognition() {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.lang = "en-US";
+        recognition.interimResults = false;
+        recognition.onresult = handleRecognitionResult;
+        recognition.start();
+      }
+
+      function handleRecognitionResult(event) {
+        const result = event.results[0][0].transcript.toUpperCase();
+        if (result === correctAlphabet) {
+          document.getElementById("alphabet").textContent = getRandomAlphabet();
+        } else {
+          alert("Sorry, that's not correct. Please try again.");
+        }
+      }
+
+      function getNextAlphabet() {
+        correctAlphabet = getRandomAlphabet();
+        pronounce();
+      }
+
+      getNextAlphabet();
+
+    </script>
+  </body>
+</html>

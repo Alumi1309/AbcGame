@@ -1,72 +1,66 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">https://github.com/Alumi1309/AbcGame/blob/main/index.html
-  <title>Alphabet Quiz</title>
-</head>
-<body>
-  <h1>Alphabet Quiz</h1>
-  <p>以下のアルファベットを発音してください</p>
-  <div id="alphabet"></div>
-  <button id="nextQuestion">次の問題へ</button>
-  
-  <script>
-    // アルファベットのリスト
-    var alphabet = "abcdefghijklmnopqrstuvwxyz";
-    // ランダムなアルファベットを取得
-    var currentAlphabet = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-    // 表示する要素を取得
-    var alphabetElement = document.getElementById("alphabet");
-    alphabetElement.textContent = currentAlphabet.toUpperCase();
-    // 正解フラグ
-    var isCorrect = false;
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Alphabet Game</title>
+  </head>
+  <body>
+    <h1>Alphabet Game</h1>
+    <p id="letter"></p>
+    <button id="play">Play Sound</button>
+    <button id="start">Start Voice Recognition</button>
+    <p id="result"></p>
 
-    // 音声再生用のAudioオブジェクトを作成
-    var audio = new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en');
+    <script>
+      let currentLetter = "";
+      const letters = "abcdefghijklmnopqrstuvwxyz";
 
-    // 次の問題へ進むボタンを取得
-    var nextButton = document.getElementById("nextQuestion");
-    nextButton.addEventListener("click", nextQuestion);
-
-    // 次の問題を表示する関数
-    function nextQuestion() {
-      // 答えが正解だった場合にのみ、次の問題へ進む
-      if (isCorrect) {
-        // ランダムなアルファベットを取得
-        currentAlphabet = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-        // アルファベットを表示
-        alphabetElement.textContent = currentAlphabet.toUpperCase();
-        // 正解フラグをリセット
-        isCorrect = false;
-        // 音声再生
-        audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en';
+      function playSound() {
+        const audio = new Audio(`./audio/${currentLetter}.mp3`);
         audio.play();
       }
-    }
 
-    // 音声認識用のRecognitionオブジェクトを作成
-    var recognition = new webkitSpeechRecognition();
-    recognition.lang = 'en-US';
-
-    // 音声認識が成功した場合のコールバック関数
-    recognition.onresult = function(event) {
-      var answer = event.results[0][0].transcript.toLowerCase();
-      console.log(answer);
-      if (answer === currentAlphabet) {
-        alert("正解！");
-        isCorrect = true;
-      } else {
-        alert("不正解");
+      function generateLetter() {
+        const randomIndex = Math.floor(Math.random() * letters.length);
+        const letter = letters[randomIndex];
+        const randomCase = Math.random() < 0.5 ? "lower" : "upper";
+        currentLetter = randomCase === "lower" ? letter : letter.toUpperCase();
+        document.getElementById("letter").textContent = currentLetter;
       }
-    };
 
-    // 音声認識が終了した場合のコールバック関数
-    recognition.onend = function() {
-      recognition.start();
-    };
+      function checkAnswer(answer) {
+        if (answer === currentLetter) {
+          document.getElementById("result").textContent = "Correct!";
+          generateLetter();
+          playSound();
+        } else {
+          document.getElementById("result").textContent = "Incorrect!";
+        }
+      }
 
-    // 音声認識を開始
-    recognition.start();
-  </script>
-</body>
+      document.getElementById("play").addEventListener("click", playSound);
+
+      document.getElementById("start").addEventListener("click", () => {
+        window.SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new window.SpeechRecognition();
+        recognition.lang = "en-US";
+
+        recognition.addEventListener("result", (event) => {
+          const transcript = event.results[0][0].transcript.trim().toLowerCase();
+          document.getElementById("result").textContent = transcript;
+          checkAnswer(transcript);
+        });
+
+        recognition.addEventListener("end", recognition.start);
+
+        recognition.start();
+      });
+
+      generateLetter();
+      playSound();
+    </script>
+  </body>
 </html>

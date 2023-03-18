@@ -43,6 +43,7 @@
         const result = event.results[0][0].transcript.toUpperCase();
         if (result === correctAlphabet) {
           document.getElementById("alphabet").textContent = getRandomAlphabet();
+          getNextAlphabet();
         } else {
           alert("Sorry, that's not correct. Please try again.");
         }
@@ -50,6 +51,7 @@
 
       function getNextAlphabet() {
         correctAlphabet = getRandomAlphabet();
+        document.getElementById("alphabet").textContent = correctAlphabet;
         pronounce();
       }
 

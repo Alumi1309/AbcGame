@@ -1,62 +1,57 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Alphabet Pronunciation Game with Voice Recognition</title>
-  </head>
-  <body>
-    <h1>Alphabet Pronunciation Game with Voice Recognition</h1>
-    <p>Click the button to hear the pronunciation of a random alphabet:</p>
-    <p id="alphabet"></p>
-    <button onclick="pronounce()">Pronounce</button>
-    <p>Click the button and speak the alphabet to move to the next one:</p>
-    <button onclick="startRecognition()">Start Voice Recognition</button>
+<head>
+  <meta charset="UTF-8">
+  <title>Alphabet Quiz</title>
+</head>
+<body>
+  <h1>Alphabet Quiz</h1>
+  <p>以下のアルファベットを発音してください</p>
+  <div id="alphabet"></div>
+  <input type="text" id="answer" placeholder="ここに答えを入力してください">
+  <button id="checkAnswer">答えをチェック</button>
+  <button id="nextQuestion">次の問題へ</button>
 
-    <script>
-      let recognition;
-      let correctAlphabet;
+  <script>
+    // アルファベットのリスト
+    var alphabet = "abcdefghijklmnopqrstuvwxyz";
+    // ランダムなアルファベットを取得
+    var currentAlphabet = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    // 表示する要素を取得
+    var alphabetElement = document.getElementById("alphabet");
+    alphabetElement.textContent = currentAlphabet.toUpperCase();
 
-      function getRandomAlphabet() {
-        const upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        const lowerCase = "abcdefghijklmnopqrstuvwxyz";
-        const allLetters = upperCase + lowerCase;
-        const randomIndex = Math.floor(Math.random() * allLetters.length);
-        return allLetters.charAt(randomIndex);
+    // 音声再生用のAudioオブジェクトを作成
+    var audio = new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en');
+
+    // 答えをチェックするボタンを取得
+    var checkButton = document.getElementById("checkAnswer");
+    checkButton.addEventListener("click", function() {
+      var answer = document.getElementById("answer").value.toLowerCase();
+      if (answer === currentAlphabet) {
+        alert("正解！");
+        nextQuestion();
+      } else {
+        alert("不正解");
       }
+    });
 
-      function pronounce() {
-        const alphabet = document.getElementById("alphabet").textContent;
-        const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${alphabet}&tl=en&client=tw-ob`;
-        const audio = new Audio(audioUrl);
-        audio.play();
-      }
+    // 次の問題へ進むボタンを取得
+    var nextButton = document.getElementById("nextQuestion");
+    nextButton.addEventListener("click", nextQuestion);
 
-      function startRecognition() {
-        recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.lang = "en-US";
-        recognition.interimResults = false;
-        recognition.onresult = handleRecognitionResult;
-        recognition.start();
-      }
-
-      function handleRecognitionResult(event) {
-        const result = event.results[0][0].transcript.toUpperCase();
-        if (result === correctAlphabet) {
-          document.getElementById("alphabet").textContent = getRandomAlphabet();
-          getNextAlphabet();
-        } else {
-          alert("Sorry, that's not correct. Please try again.");
-        }
-      }
-
-      function getNextAlphabet() {
-        correctAlphabet = getRandomAlphabet();
-        document.getElementById("alphabet").textContent = correctAlphabet;
-        pronounce();
-      }
-
-      getNextAlphabet();
-
-    </script>
-  </body>
+    // 次の問題を表示する関数
+    function nextQuestion() {
+      // ランダムなアルファベットを取得
+      currentAlphabet = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+      // アルファベットを表示
+      alphabetElement.textContent = currentAlphabet.toUpperCase();
+      // 答えのテキストボックスをクリア
+      document.getElementById("answer").value = "";
+      // 音声再生
+      audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en';
+      audio.play();
+    }
+  </script>
+</body>
 </html>

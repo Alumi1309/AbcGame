@@ -1,17 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8">https://github.com/Alumi1309/AbcGame/blob/main/index.html
   <title>Alphabet Quiz</title>
 </head>
 <body>
   <h1>Alphabet Quiz</h1>
   <p>以下のアルファベットを発音してください</p>
   <div id="alphabet"></div>
-  <input type="text" id="answer" placeholder="ここに答えを入力してください">
-  <button id="checkAnswer">答えをチェック</button>
   <button id="nextQuestion">次の問題へ</button>
-
+  
   <script>
     // アルファベットのリスト
     var alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -20,21 +18,11 @@
     // 表示する要素を取得
     var alphabetElement = document.getElementById("alphabet");
     alphabetElement.textContent = currentAlphabet.toUpperCase();
+    // 正解フラグ
+    var isCorrect = false;
 
     // 音声再生用のAudioオブジェクトを作成
     var audio = new Audio('https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en');
-
-    // 答えをチェックするボタンを取得
-    var checkButton = document.getElementById("checkAnswer");
-    checkButton.addEventListener("click", function() {
-      var answer = document.getElementById("answer").value.toLowerCase();
-      if (answer === currentAlphabet) {
-        alert("正解！");
-        nextQuestion();
-      } else {
-        alert("不正解");
-      }
-    });
 
     // 次の問題へ進むボタンを取得
     var nextButton = document.getElementById("nextQuestion");
@@ -42,16 +30,43 @@
 
     // 次の問題を表示する関数
     function nextQuestion() {
-      // ランダムなアルファベットを取得
-      currentAlphabet = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-      // アルファベットを表示
-      alphabetElement.textContent = currentAlphabet.toUpperCase();
-      // 答えのテキストボックスをクリア
-      document.getElementById("answer").value = "";
-      // 音声再生
-      audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en';
-      audio.play();
+      // 答えが正解だった場合にのみ、次の問題へ進む
+      if (isCorrect) {
+        // ランダムなアルファベットを取得
+        currentAlphabet = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+        // アルファベットを表示
+        alphabetElement.textContent = currentAlphabet.toUpperCase();
+        // 正解フラグをリセット
+        isCorrect = false;
+        // 音声再生
+        audio.src = 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q=' + currentAlphabet + '&tl=en';
+        audio.play();
+      }
     }
+
+    // 音声認識用のRecognitionオブジェクトを作成
+    var recognition = new webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+
+    // 音声認識が成功した場合のコールバック関数
+    recognition.onresult = function(event) {
+      var answer = event.results[0][0].transcript.toLowerCase();
+      console.log(answer);
+      if (answer === currentAlphabet) {
+        alert("正解！");
+        isCorrect = true;
+      } else {
+        alert("不正解");
+      }
+    };
+
+    // 音声認識が終了した場合のコールバック関数
+    recognition.onend = function() {
+      recognition.start();
+    };
+
+    // 音声認識を開始
+    recognition.start();
   </script>
 </body>
 </html>

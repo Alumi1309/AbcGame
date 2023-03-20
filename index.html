@@ -123,6 +123,7 @@
     var alphabet = "";
     var pos = 0;
     var mode = 0;
+    var isSpeaking = false;
 
 
     // ページが読み込まれた時に実行される処理
@@ -134,13 +135,18 @@
 
     // 「こたえ」ボタンがクリックされた時に実行される処理
     document.getElementById("answer").onclick = function() {
+        if(isSpeaking){return;}
         // 現在表示されているアルファベットを取得
         const letter = document.getElementById("letter").textContent;
 
+        isSpeaking = true;
         var ssu = new SpeechSynthesisUtterance();
         ssu.text = letter;
         ssu.lang = 'en-US';
 
+        ssu.onend = function(event){
+            isSpeaking = false;
+        }
         
         var voices = speechSynthesis.getVoices();
         var voice = voices.find(function(_voice){

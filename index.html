@@ -24,7 +24,7 @@
 		}
 
 		h1 {
-			margin-top: 10vh;
+			margin-top: 4vh;
 			font-size: 4vh;
 		}
 
@@ -70,9 +70,24 @@
             margin-left: auto;
             margin-right: auto;
 		}
+
+        #new {
+			background-color: #333;
+			font-size: 2vw;
+            margin: 0 0 0 0;
+        }
+
+        .devNew{
+            height: 10vw;
+            width:  30vw;
+            margin: 2vw 0 0 auto;
+        }
 	</style>
 </head>
 <body>
+    <div class="devNew">
+        <button id="new">はじめから</button>
+    </div>
 	<h1>アルファベットかくにん</h1>
 	<div id="letter"></div>
 	<div id="Answerd"></div>
@@ -89,14 +104,14 @@
 <script>
 
 
-    var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+    var alphabet = "";
     var pos = 0;
 
     // ページが読み込まれた時に実行される処理
     window.onload = function() {
         // 背景色を白に設定
         document.body.style.backgroundColor = "#fff";
-        initDisp();
+        loadCookie();
     }
 
     // 「こたえ」ボタンがクリックされた時に実行される処理
@@ -123,11 +138,17 @@
     
     document.getElementById("next").onclick = function() {
         pos++;
+        localStorage.setItem('pos', pos);
         displayRandomLetter();
         displayAnswerdLetter();
     }
     document.getElementById("init").onclick = function() {
         initDisp();
+    }
+    document.getElementById("new").onclick = function() {
+        if(confirm("ほんとうにさいしょからやりなおしますか？")){
+            initDisp();
+        }
     }
     
     function displayRandomLetter() {
@@ -161,6 +182,7 @@
         var lower = "abcdefghijklmnopqrstuvwxyz";
         var upper = lower.toUpperCase();
         var alp = shuffle(lower+upper);
+        localStorage.setItem('alphabet', alp);
         return alp;
     }
 
@@ -193,6 +215,18 @@
         document.getElementById("answer").style.display = "block";
         document.getElementById("next").style.display = "block";
         document.getElementById("init").style.display = "none";
+    }
+
+    function loadCookie(){
+        var loadAlphabet = localStorage.getItem('alphabet');
+        if(loadAlphabet == null){initDisp(); return;}
+        pos = localStorage.getItem('pos');
+        alphabet = loadAlphabet;
+        document.getElementById("answer").style.display = "block";
+        document.getElementById("next").style.display = "block";
+        document.getElementById("init").style.display = "none";
+        displayRandomLetter();
+        displayAnswerdLetter();
     }
       
     // ピンチズーム禁止

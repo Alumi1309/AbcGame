@@ -25,7 +25,7 @@
 
 		h1 {
 			margin-top: 10vh;
-			font-size: 3vh;
+			font-size: 4vh;
 		}
 
 		#letter {
@@ -34,7 +34,8 @@
 		}
 
 		button {
-			margin-top: 10vh;
+			text-align: center;
+			margin-top: 8vh;
 			padding: 10px 20px;
 			font-size: 5vh;
 			border-radius: 1vh;
@@ -44,35 +45,58 @@
 			outline: none;
 		}
 
+        #Answerd {
+			font-size: 3vh;
+            font-family:monospace;
+			margin-top: 2vh;
+        }
+
 		#answer {
 			background-color: #f00;
+			margin-top: 8vh;
+            margin-left: auto;
+            margin-right: auto;
 		}
 
 		#next {
 			background-color: #00f;
+			margin-top: 8vh;
+            margin-left: auto;
+            margin-right: auto;
+		}
+		#init {
+			background-color: #0F0;
+			margin-top: 15vh;
+            margin-left: auto;
+            margin-right: auto;
 		}
 	</style>
 </head>
 <body>
 	<h1>アルファベットかくにん</h1>
 	<div id="letter"></div>
+	<div id="Answerd"></div>
     <div>
         <button id="answer">こたえ</button>
     </div>
     <div>
         <button id="next">つぎへ</button>
     </div>
+    <div>
+        <button id="init">はじめから</button>
+    </div>
 </body>
 <script>
 
-    const alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+
+    var alphabet = "abcdefghijklmnopqrstuvwxyz".split("");
+    var pos = 0;
 
     // ページが読み込まれた時に実行される処理
     window.onload = function() {
         // 背景色を白に設定
         document.body.style.backgroundColor = "#fff";
-        // ランダムなアルファベットを表示
-        displayRandomLetter();
+        initDisp();
     }
 
     // 「こたえ」ボタンがクリックされた時に実行される処理
@@ -98,16 +122,78 @@
     }
     
     document.getElementById("next").onclick = function() {
+        pos++;
         displayRandomLetter();
+        displayAnswerdLetter();
+    }
+    document.getElementById("init").onclick = function() {
+        initDisp();
     }
     
     function displayRandomLetter() {
-        const randomIndex = Math.floor(Math.random() * alphabet.length);
-        const letter = alphabet[randomIndex];
-        const randomCase = Math.random() < 0.5 ? "lower" : "upper";
-        currentLetter = randomCase === "lower" ? letter : letter.toUpperCase();
-        document.getElementById("letter").textContent = currentLetter;
-      }
+        var letter = "　";
+        if(pos >= 52){
+            document.getElementById("answer").style.display = "none";
+            document.getElementById("next").style.display = "none";
+            document.getElementById("init").style.display = "block";
+        }
+        else{
+            letter = alphabet[pos];
+        }
+        document.getElementById("letter").textContent = letter;
+    }
+
+    function displayAnswerdLetter(){
+        var disp = "";
+        for(var i=0; i<alphabet.length; i++){
+            if(i == 26){disp+="\n";}
+            if(i < pos){
+                disp += alphabet[i];
+            }
+            else{
+                disp += "*";
+            }
+        }
+        document.getElementById("Answerd").textContent = disp;
+    }
+    
+    function CreateRandomAlphabet(){
+        var lower = "abcdefghijklmnopqrstuvwxyz";
+        var upper = lower.toUpperCase();
+        var alp = shuffle(lower+upper);
+        return alp;
+    }
+
+    function shuffle(text) {
+        let obj = {};
+        // 受け取った文字列を文字数分繰り返す
+        for (let i = 0; i < text.length; i++) {
+
+            // ランダムな数値を生成する ※文字数より少ないと永久ループする
+            let rand = Math.floor(Math.random() * 10000000);
+
+            // 同じキー名がないか判別する
+            if (!obj[rand]) {
+                // 同じキー名がない場合にobjに追加する
+                obj[rand] = text[i];
+            } else {
+                // 同じキー名ある場合、やり直す
+                i--;
+            }
+        }
+        // 作成したオブジェクトの値のみを区切り文字なしで連結する
+        return Object.values(obj).join('');
+    }
+
+    function initDisp(){
+        pos = 0;
+        alphabet = CreateRandomAlphabet()
+        displayRandomLetter();
+        displayAnswerdLetter();
+        document.getElementById("answer").style.display = "block";
+        document.getElementById("next").style.display = "block";
+        document.getElementById("init").style.display = "none";
+    }
       
     // ピンチズーム禁止
     document.body.addEventListener("touchstart", function(e){

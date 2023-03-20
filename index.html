@@ -73,7 +73,7 @@
 
         #new {
 			background-color: #333;
-			font-size: 2vw;
+			font-size: 3vw;
             margin: 0 0 0 0;
         }
 
@@ -82,12 +82,28 @@
             width:  30vw;
             margin: 2vw 0 0 auto;
         }
+        .modeRadio{
+            text-align: left;
+            float: left;
+        }
+
+        label{
+			font-size: 3vw;
+            text-align: left;
+        }
 	</style>
 </head>
 <body>
-    <div class="devNew">
-        <button id="new">はじめから</button>
+    <div class="modeRadio">
+        <label >モード</label><br>
+        <label><input type="radio" name="mode" value="modeLower">こもじ(a)</label>
+        <label><input type="radio" name="mode" value="modeUpper">おおもじ(A)</label>
+        <label><input type="radio" name="mode" value="modeAll">りょうほう</label>
     </div>
+    <div class="devNew">
+        <button id="new">モードへんこう</button>
+    </div>
+    
 	<h1>アルファベットかくにん</h1>
 	<div id="letter"></div>
 	<div id="Answerd"></div>
@@ -106,6 +122,8 @@
 
     var alphabet = "";
     var pos = 0;
+    var mode = 0;
+
 
     // ページが読み込まれた時に実行される処理
     window.onload = function() {
@@ -146,14 +164,35 @@
         initDisp();
     }
     document.getElementById("new").onclick = function() {
-        if(confirm("ほんとうにさいしょからやりなおしますか？")){
+        var nextMode = getModeSelected();
+        var modeStr = "";
+        if(nextMode == 0){
+            modeStr = "こもじ(a)";
+        }else if(nextMode == 1){
+            modeStr = "おおもじ(A)";
+        }else{
+            modeStr = "りょうほう";
+        }
+        
+
+        if(confirm(modeStr + " ではじめからやりなおします。いいですか？")){
+            mode = nextMode;
+            localStorage.setItem("mode", mode);
             initDisp();
         }
+    }
+
+    function getModeSelected(){
+        var radioList = document.getElementsByName("mode");
+        for(var i=0; i<radioList.length; i++){
+            if(radioList[i].checked){return i;}
+        }
+        return 0;
     }
     
     function displayRandomLetter() {
         var letter = "　";
-        if(pos >= 52){
+        if(pos >= alphabet.length){
             document.getElementById("answer").style.display = "none";
             document.getElementById("next").style.display = "none";
             document.getElementById("init").style.display = "block";
@@ -181,7 +220,11 @@
     function CreateRandomAlphabet(){
         var lower = "abcdefghijklmnopqrstuvwxyz";
         var upper = lower.toUpperCase();
-        var alp = shuffle(lower+upper);
+        var alp = "";
+        if(mode == 0){alp = shuffle(lower);}
+        else if(mode == 1){alp = shuffle(upper);}
+        else{alp = shuffle(lower+upper);}
+        shuffle(lower+upper);
         localStorage.setItem('alphabet', alp);
         return alp;
     }
@@ -221,6 +264,9 @@
         var loadAlphabet = localStorage.getItem('alphabet');
         if(loadAlphabet == null){initDisp(); return;}
         pos = localStorage.getItem('pos');
+        mode = localStorage.getItem('mode');
+        var modeRadios = document.getElementsByName('mode');
+        modeRadios.item(mode).checked = true;
         alphabet = loadAlphabet;
         document.getElementById("answer").style.display = "block";
         document.getElementById("next").style.display = "block";
